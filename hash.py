@@ -44,43 +44,62 @@
 
 
 
-
 import hashlib
-from main import get_hash
 import requests
 import json
-from main import start_session
 
-token = start_session()
-text = f"{token}test123test123DoeJohnjohn.doe@example.com"
+def get_hash(text: str) -> str:
+    return hashlib.md5(text.encode()).hexdigest()
 
-print(f"Строка для хеширования: {text}")
+session_token = "gn702r5um1v1p28dhdu7bt91ve"
+login = "Talasbek"
+email = "talasbek@example.com"
+password = "111111"
+last_name = "Иванов"
+first_name = "Таласбек"
+second_name = "Петров"
+birthday = "1990-05-15"
+phone = "+996555123456"
+doctype = "passport"
+doc_cnt = "US"
+doc_number = "AB123456"
 
-hash_value = get_hash(text)
-print(f"Хеш: {hash_value}")
+hash_text = f"{session_token}{login}{email}{password}{password}{last_name}{first_name}{second_name}{birthday}{phone}{doctype}{doc_cnt}{doc_number}"
+print("text before hash:", hash_text)
+
+hash_value = get_hash(hash_text)
+
+data = {
+    "session_token": session_token,
+    "login": login,
+    "email": email,
+    "password": password,
+    "confirm_password": password,
+    "last_name": last_name,
+    "name": first_name,
+    "second_name": second_name,
+    "personal_birthday": birthday,
+    "personal_mobile": phone,
+    "uf_personal_doctype": doctype,
+    "uf_personal_doccnt": doc_cnt,
+    "uf_personal_docnum": doc_number,
+    "hash": hash_value
+}
 
 headers = {
     "Content-Type": "application/json"
 }
 
-data = {
-    "session_token": token,
-    "password": "test123",
-    "confirm_password": "test123",
-    "last_name": "Doe",
-    "name": "John",
-    "email": "john.doe@example.com",
-    # "return_date": "23.03.2025",
-    "hash": hash_value  
-}
-print(hash_value)
+url = "https://skyfru.travelshop.aero/bitrix/components/travelshop/ibe.rest/AddUser/"
 
-print(f"Отправляемые данные: {json.dumps(data, indent=4, ensure_ascii=False)}")
-
-response = requests.post(url="https://skyfru.travelshop.aero/bitrix/components/travelshop/ibe.rest/GetAvailability/", json=data, headers=headers)
+response = requests.post(url, json=data, headers=headers)
 
 if response.status_code == 200:
-    with open('flights.json', 'w', encoding='utf-8') as f:
-        json.dump(response.json(), f, indent=4, ensure_ascii=False)
+    try:
+        print(json.dumps(response.json(), indent=4, ensure_ascii=False))
+    except requests.exceptions.JSONDecodeError:
+        print("Ответ сервера не является JSON:")
+        print(response.text)
 else:
-    print(response.status_code)
+    print(f"Ошибка {response.status_code}:")
+    print(response.text)

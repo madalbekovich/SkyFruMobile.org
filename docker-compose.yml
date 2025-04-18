@@ -61,7 +61,7 @@ services:
     environment:
       - POSTGRES_USER=navisdevs
       - POSTGRES_PASSWORD=adminadmin
-      - POSTGRES_DB=bellavita
+      - POSTGRES_DB=skyfru
     depends_on:
       - redis
 

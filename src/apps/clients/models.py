@@ -13,6 +13,9 @@ class User(AbstractUser):
     last_name = models.CharField('Фамилия', max_length=100)
     phone = models.CharField('Телефон номер', max_length=50)
 
+    # bitrix field
+    service_user_id = models.IntegerField(null=True, blank=True, verbose_name='Bitrix UserId')
+
     USERNAME_FIELD = 'email'
 
     REQUIRED_FIELDS = []

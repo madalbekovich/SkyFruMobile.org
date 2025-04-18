@@ -85,26 +85,28 @@ class ApiClient:
 
         hash_text = (
             f"{self.session_token}"
-            "OW" 
+            f"{kwargs.get('owrt')}"
             f"{kwargs.get('departure_point')}"
             f"{kwargs.get('arrival_point')}"
             f"{kwargs.get('outbound_date')}"
+            f"{kwargs.get('return_date', '')}"
             f"{kwargs.get('adult_count')}"
             f"{kwargs.get('child_count')}"
             f"{kwargs.get('infant_count')}"
             "Y"  
         )
         hash_value = self.generate_hash(hash_text)
-        print(f"Сгенерированный хеш: {hash_value}")
+        # print(f"Сгенерированный хеш: {hash_value}")
         data = {
             "session_token": self.session_token, 
-            "owrt": "OW",
+            "owrt": kwargs.get('owrt'),
             "adult_count": kwargs.get('adult_count'),
             "child_count": kwargs.get('child_count'),
             "infant_count": kwargs.get('infant_count'),
             "departure_point": kwargs.get('departure_point'),
             "arrival_point": kwargs.get('arrival_point'),
             "outbound_date": kwargs.get('outbound_date'),
+            "return_date": kwargs.get('return_date'),
             "return_full_names": "Y",
             "hash": hash_value
         }
@@ -112,7 +114,7 @@ class ApiClient:
             url=f"{self.BASE_URL}/GetOptimalFares/",
             headers={"Content-Type": "application/json"},
             json=data,
-            timeout=30,
+            timeout=120,
         )
 
         try:
@@ -126,37 +128,55 @@ class ApiClient:
             print(f"Время выполнения запроса: {end_time - start_time:.5f} sec")
 
         
-    def add_user(self, **kwargs):
+    def add_user(
+        self, login: str, email: str = None, password: str = None, confirm_password: str = None,
+        last_name: str = None, first_name: str = None, phone: str = None
+    ) -> str:
+        
         if not self.session_token:
-            print("Token not receipt")
+            print("Token not received")
             return
         
-        hash_text = (
-            f"{self.session_token}"
-            f"{kwargs.get('login')}"
-            f"{kwargs.get('password')}"
-            f"{kwargs.get('confirm_password')}"
-            f"{kwargs.get('last_name')}"
-            f"{kwargs.get('name')}"
-            f"{kwargs.get('email')}"
-        )
+        hash_text = f"{self.session_token}{login}{email}{password}{confirm_password}{last_name}{first_name}{phone}"
         hash_value = self.generate_hash(hash_text)
 
-
         data = {
-            "password": kwargs.get('password'),
-            "confirm_password": kwargs.get('confirm_password'),
-            "last_name": kwargs.get('last_name'),
-            "name": kwargs.get('name'),
-            "login": kwargs.get('login'),
-            "email": kwargs.get('email'),
+            "session_token": self.session_token,
+            "login": login,
+            "email": email,
+            "password": password,
+            "confirm_password": confirm_password,
+            "last_name": last_name,
+            "name": first_name,
+            "personal_mobile": phone,
             "hash": hash_value
         }
 
-        request = self.session.post(
+        response = self.session.post(
             url=f"{self.BASE_URL}AddUser/",
             headers={"Content-Type": "application/json"},
             json=data,
-            timeout=30,
+            timeout=120,
         )
-        print("response add user status: ", request.status_code, request.text)
+
+        return response.json()
+
+    def authorization_user(
+        self, email: str, password: str
+    ) -> str:
+        hash_text = f"{self.session_token}{email}{password}"
+        hash_value = self.generate_hash(hash_text)
+
+        data = {
+            "session_token": self.session_token,
+            "user_login": email,
+            "user_password": password,
+            "hash": hash_value
+        }
+        request = self.session.post(
+            url=f"{self.BASE_URL}/AuthorizeUser/",
+            headers={"Content-Type": "application/json"},
+            json=data,
+            timeout=120
+        )
+        return request.json()

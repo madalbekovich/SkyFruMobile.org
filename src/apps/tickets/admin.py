@@ -4,5 +4,5 @@ from .models import PopularDestination
 
 @admin.register(PopularDestination)
 class PopularDestinationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'city_name']
+    list_display = ['id', 'country_name']
     

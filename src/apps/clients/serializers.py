@@ -3,6 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from .models import User
 
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(
         required=True,
@@ -105,3 +106,13 @@ class ForgotPasswordVerifySerializer(serializers.Serializer):
 
     class Meta:
         fields = ["email", "code"]
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'phone']
+
+class SendMailSerializer(serializers.Serializer):
+    email = serializers.EmailField(default='example@gmail.com')
+

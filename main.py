@@ -169,4 +169,4 @@ def get_optimal_fires(
     
 if __name__ == "__main__":
     session_token = start_session()
-    get_optimal_fires(session_token=session_token, owrt="OW",departure_point="FRU", arrival_point="OSS", outbound_date="27.02.2025", adult_count=1, return_full_names="N")
+    get_optimal_fires(session_token=session_token, owrt="OW",departure_point="FRU", arrival_point="OSS", outbound_date="31.03.2025", adult_count=1, return_full_names="N")
